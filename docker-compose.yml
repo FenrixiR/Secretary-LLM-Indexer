@@ -1,0 +1,42 @@
+services:
+  secretary:
+    build:
+      context: .
+    container_name: secretary
+    network_mode: host
+    volumes:
+      # Mount your project read-only for scanning
+      - /path/to/your/project:/project:ro
+      # Secretary writes output and manifest here
+      - .:/app/data
+    environment:
+      - OLLAMA_HOST=http://172.17.0.1:11434
+      - PROJECT_ROOT=/project
+      - OUTPUT_DIR=/app/data/output
+      - MANIFEST_PATH=/app/data/manifest.json
+      - AI_MODEL=qwen2.5-coder:7b
+    # Remove 'depends_on' if Ollama is not managed by this compose file
+    depends_on:
+      - ollama
+
+  # ── Optional: include Ollama in the same compose stack ──────────────────────
+  # If you already run Ollama separately, remove this service block entirely
+  # and remove 'depends_on' above.
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+volumes:
+  ollama_data:

@@ -5,6 +5,6 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY main.py parsers.py ollama_client.py verifier.py ./
+COPY main.py parsers.py ollama_client.py verifier.py secretary.config.yml ./
 
 CMD ["python", "main.py"]
